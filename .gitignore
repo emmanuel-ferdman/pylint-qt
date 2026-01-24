@@ -1,0 +1,27 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Packaging
+*.egg-info/
+*.egg
+.eggs/
+dist/
+build/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Linting / Type checking
+.ruff_cache/
+.mypy_cache/
+
+# Compiled extensions
+*.so
+
+# Virtual environments
+.venv
+venv/
