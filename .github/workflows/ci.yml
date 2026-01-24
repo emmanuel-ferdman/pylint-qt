@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ruff mypy astroid pylint
+      - run: ruff check .
+      - run: ruff format --check .
+      - run: mypy pylint_qt/
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+        qt-binding: ["PyQt5", "PyQt6", "PySide2", "PySide6"]
+        exclude:
+          # PySide2 doesn't support Python 3.11+
+          - python-version: "3.11"
+            qt-binding: "PySide2"
+          - python-version: "3.12"
+            qt-binding: "PySide2"
+          - python-version: "3.13"
+            qt-binding: "PySide2"
+          - python-version: "3.14"
+            qt-binding: "PySide2"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Qt dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libegl1 libxkbcommon0 libxcb-cursor0
+
+      - name: Install package
+        run: pip install -e ".[dev]"
+
+      - name: Install Qt binding
+        run: pip install ${{ matrix.qt-binding }}
+
+      - name: Run tests
+        uses: coactions/setup-xvfb@v1
+        with:
+          run: pytest --cov --cov-report=xml
