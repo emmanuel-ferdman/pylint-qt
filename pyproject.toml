@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pylint-qt"
+version = "0.1.0"
+description = "A Pylint plugin for improving Qt code analysis (PyQt5, PyQt6, PySide2, PySide6)"
+readme = "README.rst"
+requires-python = ">=3.10"
+authors = [
+    {name = "Emmanuel Ferdman", email = "emmanuelferdman@gmail.com"}
+]
+keywords = ["pylint", "plugin", "qt", "pyqt", "pyside"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Plugins",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Quality Assurance",
+]
+dependencies = [
+    "pylint>=3.0,<5",
+    "astroid>=3.0,<5",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.6.0",
+]
+pyqt5 = ["PyQt5"]
+pyqt6 = ["PyQt6"]
+pyside2 = ["PySide2"]
+pyside6 = ["PySide6"]
+
+[tool.setuptools.packages.find]
+include = ["pylint_qt*"]
