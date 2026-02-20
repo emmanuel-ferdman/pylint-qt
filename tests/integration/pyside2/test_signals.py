@@ -209,3 +209,68 @@ class TestClassAttributeSignals:
         inferred = node.inferred()[0]
         assert inferred is not Uninferable
         assert hasattr(inferred, "name") and inferred.name == "emit"
+
+
+class TestQApplicationSignals:
+    """Tests for QApplication signals."""
+
+    def test_qapplication_focus_changed(self):
+        """Test QApplication.focusChanged.connect."""
+        node = extract_node("""
+        from PySide2.QtWidgets import QApplication
+        app = QApplication([])
+        app.focusChanged.connect  #@
+        """)
+        inferred = node.inferred()[0]
+        assert inferred is not Uninferable
+
+    def test_qapplication_about_to_quit(self):
+        """Test QApplication.aboutToQuit.connect."""
+        node = extract_node("""
+        from PySide2.QtWidgets import QApplication
+        app = QApplication([])
+        app.aboutToQuit.connect  #@
+        """)
+        inferred = node.inferred()[0]
+        assert inferred is not Uninferable
+
+
+class TestImportAliases:
+    """Tests for aliased imports."""
+
+    def test_aliased_widget_signal(self):
+        """Test signal on aliased widget import."""
+        node = extract_node("""
+        from PySide2.QtWidgets import QPushButton as Btn
+        btn = Btn()
+        btn.clicked.connect  #@
+        """)
+        inferred = node.inferred()[0]
+        assert inferred is not Uninferable
+
+    def test_aliased_timer(self):
+        """Test signal on aliased QTimer import."""
+        node = extract_node("""
+        from PySide2.QtCore import QTimer as Timer
+        t = Timer()
+        t.timeout.connect  #@
+        """)
+        inferred = node.inferred()[0]
+        assert inferred is not Uninferable
+
+
+class TestSignalVariableReference:
+    """Tests for signal accessed via variable."""
+
+    def test_signal_stored_in_variable(self):
+        """Test signal stored in variable then connected."""
+        node = extract_node("""
+        from PySide2.QtCore import Signal, QObject
+        class MyWidget(QObject):
+            my_signal = Signal()
+        widget = MyWidget()
+        sig = widget.my_signal
+        sig.connect  #@
+        """)
+        inferred = node.inferred()[0]
+        assert inferred is not Uninferable

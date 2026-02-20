@@ -2,6 +2,7 @@
 
 from unittest.mock import MagicMock, patch
 
+import pytest
 from astroid import MANAGER, Uninferable, extract_node, nodes
 from astroid.exceptions import InferenceError
 
@@ -162,7 +163,6 @@ class TestPredicates:
         """Test that subscripted signals are excluded from class attribute handling."""
         from astroid import parse
 
-        # Parse code with a subscripted signal-like pattern
         module = parse("""
         from PyQt6.QtCore import pyqtSignal
         class Foo:
@@ -170,9 +170,8 @@ class TestPredicates:
         obj = Foo()
         x = obj.sig[int]
         """)
-        # Get the attribute node (obj.sig) which is the value of the Subscript
-        subscript = module.body[-1].value  # obj.sig[int]
-        attr_node = subscript.value  # obj.sig
+        subscript = module.body[-1].value
+        attr_node = subscript.value
 
         result = _looks_like_signal_class_attribute(attr_node)
         assert result is False
@@ -181,16 +180,13 @@ class TestPredicates:
         """Test _looks_like_subscripted_signal when parent.value is not node."""
         from astroid import parse
 
-        # Parse code where the attribute is in the slice, not the value
         module = parse("""
         from PyQt6.QtCore import QTimer
         x = some_list[timer.timeout]
         """)
-        # Get the attribute node (timer.timeout) which is in the slice
-        subscript = module.body[-1].value  # some_list[timer.timeout]
-        attr_in_slice = subscript.slice  # timer.timeout
+        subscript = module.body[-1].value
+        attr_in_slice = subscript.slice
 
-        # Verify it's an Attribute with Subscript parent but not the value
         assert isinstance(attr_in_slice, nodes.Attribute)
         assert isinstance(attr_in_slice.parent, nodes.Subscript)
         assert attr_in_slice.parent.value is not attr_in_slice
@@ -208,13 +204,10 @@ class TestInferenceFunctionEdgeCases:
 
         from pylint_qt.transforms.signals import _infer_signal_class_attribute
 
-        # Create a node where expr infers to a module, not an instance
         node = extract_node("""
         from PyQt6 import QtCore
         QtCore.someattr  #@
         """)
-
-        import pytest
 
         with pytest.raises(UseInferenceDefault):
             list(_infer_signal_class_attribute(node))
@@ -236,8 +229,6 @@ class TestInferenceFunctionEdgeCases:
 
         # Mock expr.infer() to return the mock instance
         node.expr.infer.return_value = iter([mock_instance])
-
-        import pytest
 
         with pytest.raises(UseInferenceDefault):
             list(_infer_signal_class_attribute(node))
@@ -325,7 +316,6 @@ class TestInferenceFunctionEdgeCases:
 
         from pylint_qt.transforms.signals import _infer_signal_class_attribute
 
-        # Create a node where the attribute is a method
         node = extract_node("""
         from PyQt6.QtCore import QObject
         class Foo(QObject):
@@ -333,8 +323,6 @@ class TestInferenceFunctionEdgeCases:
         obj = Foo()
         obj.method  #@
         """)
-
-        import pytest
 
         with pytest.raises(UseInferenceDefault):
             list(_infer_signal_class_attribute(node))
@@ -345,7 +333,6 @@ class TestInferenceFunctionEdgeCases:
 
         from pylint_qt.transforms.signals import _infer_signal_class_attribute
 
-        # Create a node where the attribute is not a signal
         node = extract_node("""
         from PyQt6.QtCore import QObject
         class Foo(QObject):
@@ -353,8 +340,6 @@ class TestInferenceFunctionEdgeCases:
         obj = Foo()
         obj.attr  #@
         """)
-
-        import pytest
 
         with pytest.raises(UseInferenceDefault):
             list(_infer_signal_class_attribute(node))
@@ -365,7 +350,6 @@ class TestInferenceFunctionEdgeCases:
 
         from pylint_qt.transforms.signals import _infer_signal_class_attribute
 
-        # Create a node where the value cannot be inferred
         node = extract_node("""
         from PyQt6.QtCore import QObject
         class Foo(QObject):
@@ -373,8 +357,6 @@ class TestInferenceFunctionEdgeCases:
         obj = Foo()
         obj.attr  #@
         """)
-
-        import pytest
 
         with pytest.raises(UseInferenceDefault):
             list(_infer_signal_class_attribute(node))
@@ -389,8 +371,6 @@ class TestInferenceFunctionEdgeCases:
         node = MagicMock()
         node.attrname = "test"
         node.expr.infer.side_effect = InferenceError()
-
-        import pytest
 
         with pytest.raises(UseInferenceDefault):
             list(_infer_signal_class_attribute(node))
@@ -422,8 +402,6 @@ class TestInferenceFunctionEdgeCases:
         node.attrname = "attr"
         node.expr.infer.return_value = iter([mock_instance])
 
-        import pytest
-
         with pytest.raises(UseInferenceDefault):
             list(_infer_signal_class_attribute(node))
 
@@ -454,8 +432,6 @@ class TestInferenceFunctionEdgeCases:
         node = MagicMock()
         node.attrname = "attr"
         node.expr.infer.return_value = iter([mock_instance])
-
-        import pytest
 
         with pytest.raises(UseInferenceDefault):
             list(_infer_signal_class_attribute(node))

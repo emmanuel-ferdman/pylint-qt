@@ -32,17 +32,17 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
-        qt-binding: ["PyQt5", "PyQt6", "PySide2", "PySide6"]
+        qt-binding: ["pyqt5", "pyqt6", "pyside2", "pyside6"]
         exclude:
           # PySide2 doesn't support Python 3.11+
           - python-version: "3.11"
-            qt-binding: "PySide2"
+            qt-binding: "pyside2"
           - python-version: "3.12"
-            qt-binding: "PySide2"
+            qt-binding: "pyside2"
           - python-version: "3.13"
-            qt-binding: "PySide2"
+            qt-binding: "pyside2"
           - python-version: "3.14"
-            qt-binding: "PySide2"
+            qt-binding: "pyside2"
 
     steps:
       - uses: actions/checkout@v4
@@ -66,4 +66,4 @@ jobs:
       - name: Run tests
         uses: coactions/setup-xvfb@v1
         with:
-          run: pytest --cov --cov-report=xml
+          run: pytest tests/unit/ tests/integration/${{ matrix.qt-binding }}/ tests/test_functional.py --cov --cov-report=xml

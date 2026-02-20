@@ -1,8 +1,8 @@
-"""Tests for PyQt5 signal inference."""
+"""Tests for PySide6 signal inference."""
 
 import pytest
 
-pytest.importorskip("PyQt5")
+pytest.importorskip("PySide6")
 
 from astroid import Uninferable, extract_node
 from astroid.nodes import FunctionDef
@@ -11,13 +11,13 @@ import pylint_qt  # noqa: F401
 
 
 class TestUserDefinedSignals:
-    """Tests for user-defined pyqtSignal() inference."""
+    """Tests for user-defined Signal() inference."""
 
     def test_signal_has_connect(self):
-        """Test pyqtSignal() instances expose connect."""
+        """Test Signal() instances expose connect."""
         node = extract_node("""
-        from PyQt5.QtCore import pyqtSignal
-        sig = pyqtSignal()
+        from PySide6.QtCore import Signal
+        sig = Signal()
         sig.connect  #@
         """)
         inferred = node.inferred()[0]
@@ -25,10 +25,10 @@ class TestUserDefinedSignals:
         assert isinstance(inferred, FunctionDef)
 
     def test_signal_has_disconnect(self):
-        """Test pyqtSignal() instances expose disconnect."""
+        """Test Signal() instances expose disconnect."""
         node = extract_node("""
-        from PyQt5.QtCore import pyqtSignal
-        sig = pyqtSignal()
+        from PySide6.QtCore import Signal
+        sig = Signal()
         sig.disconnect  #@
         """)
         inferred = node.inferred()[0]
@@ -36,10 +36,10 @@ class TestUserDefinedSignals:
         assert isinstance(inferred, FunctionDef)
 
     def test_signal_has_emit(self):
-        """Test pyqtSignal() instances expose emit."""
+        """Test Signal() instances expose emit."""
         node = extract_node("""
-        from PyQt5.QtCore import pyqtSignal
-        sig = pyqtSignal()
+        from PySide6.QtCore import Signal
+        sig = Signal()
         sig.emit  #@
         """)
         inferred = node.inferred()[0]
@@ -47,10 +47,10 @@ class TestUserDefinedSignals:
         assert isinstance(inferred, FunctionDef)
 
     def test_signal_with_arguments(self):
-        """Test pyqtSignal(int, str) works."""
+        """Test Signal(int, str) works."""
         node = extract_node("""
-        from PyQt5.QtCore import pyqtSignal
-        sig = pyqtSignal(int, str)
+        from PySide6.QtCore import Signal
+        sig = Signal(int, str)
         sig.emit  #@
         """)
         inferred = node.inferred()[0]
@@ -64,7 +64,7 @@ class TestBuiltinWidgetSignals:
     def test_qpushbutton_clicked(self):
         """Test QPushButton.clicked.connect."""
         node = extract_node("""
-        from PyQt5.QtWidgets import QPushButton
+        from PySide6.QtWidgets import QPushButton
         btn = QPushButton()
         btn.clicked.connect  #@
         """)
@@ -75,7 +75,7 @@ class TestBuiltinWidgetSignals:
     def test_qlineedit_text_changed(self):
         """Test QLineEdit.textChanged.connect."""
         node = extract_node("""
-        from PyQt5.QtWidgets import QLineEdit
+        from PySide6.QtWidgets import QLineEdit
         edit = QLineEdit()
         edit.textChanged.connect  #@
         """)
@@ -86,7 +86,7 @@ class TestBuiltinWidgetSignals:
     def test_qcombobox_current_index_changed(self):
         """Test QComboBox.currentIndexChanged.connect."""
         node = extract_node("""
-        from PyQt5.QtWidgets import QComboBox
+        from PySide6.QtWidgets import QComboBox
         combo = QComboBox()
         combo.currentIndexChanged.connect  #@
         """)
@@ -97,7 +97,7 @@ class TestBuiltinWidgetSignals:
     def test_qcheckbox_state_changed(self):
         """Test QCheckBox.stateChanged.connect."""
         node = extract_node("""
-        from PyQt5.QtWidgets import QCheckBox
+        from PySide6.QtWidgets import QCheckBox
         cb = QCheckBox()
         cb.stateChanged.connect  #@
         """)
@@ -108,7 +108,7 @@ class TestBuiltinWidgetSignals:
     def test_qslider_value_changed(self):
         """Test QSlider.valueChanged.connect."""
         node = extract_node("""
-        from PyQt5.QtWidgets import QSlider
+        from PySide6.QtWidgets import QSlider
         slider = QSlider()
         slider.valueChanged.connect  #@
         """)
@@ -119,7 +119,7 @@ class TestBuiltinWidgetSignals:
     def test_qtimer_timeout(self):
         """Test QTimer.timeout.connect."""
         node = extract_node("""
-        from PyQt5.QtCore import QTimer
+        from PySide6.QtCore import QTimer
         timer = QTimer()
         timer.timeout.connect  #@
         """)
@@ -134,7 +134,7 @@ class TestSignalSubscript:
     def test_subscript_connect(self):
         """Test signal[int].connect works."""
         node = extract_node("""
-        from PyQt5.QtWidgets import QSpinBox
+        from PySide6.QtWidgets import QSpinBox
         spin = QSpinBox()
         spin.valueChanged[int].connect  #@
         """)
@@ -144,8 +144,8 @@ class TestSignalSubscript:
     def test_subscript_with_bare_import(self):
         """Test subscript with bare import statement."""
         node = extract_node("""
-        import PyQt5.QtWidgets
-        spin = PyQt5.QtWidgets.QSpinBox()
+        import PySide6.QtWidgets
+        spin = PySide6.QtWidgets.QSpinBox()
         spin.valueChanged[int].connect  #@
         """)
         inferred = node.inferred()[0]
@@ -158,9 +158,9 @@ class TestClassAttributeSignals:
     def test_class_attribute_signal_via_self(self):
         """Test class attribute signal accessed via self."""
         node = extract_node("""
-        from PyQt5.QtCore import pyqtSignal, QObject
+        from PySide6.QtCore import Signal, QObject
         class MyWidget(QObject):
-            my_signal = pyqtSignal()
+            my_signal = Signal()
             def setup(self):
                 self.my_signal.connect  #@
         """)
@@ -172,9 +172,9 @@ class TestClassAttributeSignals:
     def test_class_attribute_signal_external_access(self):
         """Test class attribute signal accessed from external instance."""
         node = extract_node("""
-        from PyQt5.QtCore import pyqtSignal, QObject
+        from PySide6.QtCore import Signal, QObject
         class MyWidget(QObject):
-            my_signal = pyqtSignal(int)
+            my_signal = Signal(int)
         obj = MyWidget()
         obj.my_signal.connect  #@
         """)
@@ -185,9 +185,9 @@ class TestClassAttributeSignals:
     def test_inherited_signal_via_mro(self):
         """Test signal inherited from parent class."""
         node = extract_node("""
-        from PyQt5.QtCore import pyqtSignal, QObject
+        from PySide6.QtCore import Signal, QObject
         class Parent(QObject):
-            parent_signal = pyqtSignal()
+            parent_signal = Signal()
         class Child(Parent):
             pass
         obj = Child()
@@ -200,12 +200,77 @@ class TestClassAttributeSignals:
     def test_annotated_assignment_signal(self):
         """Test signal with type annotation (AnnAssign)."""
         node = extract_node("""
-        from PyQt5.QtCore import pyqtSignal, QObject
+        from PySide6.QtCore import Signal, QObject
         class MyWidget(QObject):
-            my_signal: pyqtSignal = pyqtSignal(int)
+            my_signal: Signal = Signal(int)
         obj = MyWidget()
         obj.my_signal.emit  #@
         """)
         inferred = node.inferred()[0]
         assert inferred is not Uninferable
         assert hasattr(inferred, "name") and inferred.name == "emit"
+
+
+class TestQApplicationSignals:
+    """Tests for QApplication signals."""
+
+    def test_qapplication_focus_changed(self):
+        """Test QApplication.focusChanged.connect."""
+        node = extract_node("""
+        from PySide6.QtWidgets import QApplication
+        app = QApplication([])
+        app.focusChanged.connect  #@
+        """)
+        inferred = node.inferred()[0]
+        assert inferred is not Uninferable
+
+    def test_qapplication_about_to_quit(self):
+        """Test QApplication.aboutToQuit.connect."""
+        node = extract_node("""
+        from PySide6.QtWidgets import QApplication
+        app = QApplication([])
+        app.aboutToQuit.connect  #@
+        """)
+        inferred = node.inferred()[0]
+        assert inferred is not Uninferable
+
+
+class TestImportAliases:
+    """Tests for aliased imports."""
+
+    def test_aliased_widget_signal(self):
+        """Test signal on aliased widget import."""
+        node = extract_node("""
+        from PySide6.QtWidgets import QPushButton as Btn
+        btn = Btn()
+        btn.clicked.connect  #@
+        """)
+        inferred = node.inferred()[0]
+        assert inferred is not Uninferable
+
+    def test_aliased_timer(self):
+        """Test signal on aliased QTimer import."""
+        node = extract_node("""
+        from PySide6.QtCore import QTimer as Timer
+        t = Timer()
+        t.timeout.connect  #@
+        """)
+        inferred = node.inferred()[0]
+        assert inferred is not Uninferable
+
+
+class TestSignalVariableReference:
+    """Tests for signal accessed via variable."""
+
+    def test_signal_stored_in_variable(self):
+        """Test signal stored in variable then connected."""
+        node = extract_node("""
+        from PySide6.QtCore import Signal, QObject
+        class MyWidget(QObject):
+            my_signal = Signal()
+        widget = MyWidget()
+        sig = widget.my_signal
+        sig.connect  #@
+        """)
+        inferred = node.inferred()[0]
+        assert inferred is not Uninferable
