@@ -17,8 +17,8 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6.0.2
+      - uses: actions/setup-python@v6.2.0
         with:
           python-version: "3.12"
       - run: pip install ruff mypy astroid pylint
@@ -45,10 +45,10 @@ jobs:
             qt-binding: "pyside2"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6.0.2
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6.2.0
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -64,6 +64,6 @@ jobs:
         run: pip install ${{ matrix.qt-binding }}
 
       - name: Run tests
-        uses: coactions/setup-xvfb@v1
+        uses: coactions/setup-xvfb@v1.0.1
         with:
           run: pytest tests/unit/ tests/integration/${{ matrix.qt-binding }}/ tests/test_functional.py --cov --cov-report=xml
